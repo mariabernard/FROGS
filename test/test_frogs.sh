@@ -42,23 +42,7 @@ denoising.py illumina \
  --output-fasta $out_dir/01-denoising-swarm-vsearch.fasta \
  --output-biom $out_dir/01-denoising-swarm-vsearch.biom \
  --html $out_dir/01-denoising-swarm-vsearch.html \
- --log-file $out_dir/01-denoising-swarm-vsearch.log
- 
- echo "Step denoising 16S vsearch swarm denoising and distance 3 `date`":
-
-
-denoising.py illumina \
- --process swarm \
- --min-amplicon-size 44 --max-amplicon-size 490 \
- --five-prim-primer GGCGVACGGGTGAGTAA --three-prim-primer GTGCCAGCNGCNGCGG \
- --R1-size 267 --R2-size 266 --merge-software vsearch \
- --nb-cpus $nb_cpu --mismatch-rate 0.15 \
- --input-archive data/test_dataset.tar.gz \
- --output-fasta $out_dir/01-denoising-swarm-dd3-vsearch.fasta \
- --output-biom $out_dir/01-denoising-swarm-dd3-vsearch.biom \
- --html $out_dir/01-denoising-swarm-dd3-vsearch.html \
- --log-file $out_dir/01-denoising-swarm-dd3--vsearch.log \
- --denoising --distance 3 
+ --log-file $out_dir/01-denoising-swarm-vsearch.log 
 
 echo "Step denoising 16S pear `date`":
 
@@ -398,7 +382,7 @@ phyloseq_import_data.py  \
  --biomfile data/chaillou.biom \
  --samplefile data/sample_metadata.tsv \
  --treefile data/tree.nwk \
- --rdata $out_dir/16-phylo_import.Rdata \
+ --out-phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --html $out_dir/16-phylo_import.nb.html \
  --log-file $out_dir/16-phylo_import.log
 
@@ -412,8 +396,8 @@ fi
 echo "Step phyloseq_composition `date`"
 
 phyloseq_composition.py  \
- --varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
- --rdata $out_dir/16-phylo_import.Rdata \
+ --var-exp EnvType --taxa-rank-1 Kingdom --taxa-set-1 Bacteria --taxa-rank-2 Phylum --number-of-taxa 9 \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --html $out_dir/17-phylo_composition.nb.html \
  --log-file $out_dir/17-phylo_composition.log
 
@@ -427,8 +411,8 @@ fi
 echo "Step phyloseq_alpha_diversity `date`"
 
 phyloseq_alpha_diversity.py  \
- --varExp EnvType \
- --rdata $out_dir/16-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
+ --var-exp EnvType \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata --alpha-measures Observed Chao1 Shannon \
  --alpha-out $out_dir/18-phylo_alpha_div.tsv \
  --html $out_dir/18-phylo_alpha_div.nb.html \
  --log-file $out_dir/18-phylo_alpha_div.log
@@ -443,8 +427,8 @@ fi
 echo "Step phyloseq_beta_diversity `date`"
 
 phyloseq_beta_diversity.py  \
- --varExp EnvType --distance-methods cc,unifrac \
- --rdata $out_dir/16-phylo_import.Rdata \
+ --var-exp EnvType --distance-methods cc,unifrac \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --matrix-outdir $out_dir \
  --html $out_dir/19-phylo_beta_div.nb.html \
  --log-file $out_dir/19-phylo_beta_div.log
@@ -459,8 +443,8 @@ fi
 echo "Step phyloseq_structure `date`"
 
 phyloseq_structure.py  \
- --varExp EnvType --ordination-method MDS \
- --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
+ --var-exp EnvType --ordination-method MDS \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
  --html $out_dir/20-phylo_structure.nb.html \
  --log-file $out_dir/20-phylo_structure.log
 
@@ -474,8 +458,8 @@ fi
 echo "Step phyloseq_clustering `date`"
 
 phyloseq_clustering.py  \
- --varExp EnvType \
- --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
+ --var-exp EnvType \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
  --html $out_dir/21-phylo_clustering.nb.html \
  --log-file $out_dir/21-phylo_clustering.log
 
@@ -489,8 +473,8 @@ fi
 echo "Step phyloseq_manova `date`"
 
 phyloseq_manova.py  \
- --varExp EnvType \
- --rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
+ --var-exp EnvType \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata --distance-matrix $out_dir/unifrac.tsv \
  --html $out_dir/22-phylo_manova.nb.html \
  --log-file $out_dir/22-phylo_manova.log
 
@@ -505,11 +489,11 @@ echo "Step deseq2_preprocess `date`"
 echo "DESeq2 asv abundances"
 
 ../app/deseq2_preprocess.py \
- --data $out_dir/16-phylo_import.Rdata \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --analysis ASV \
  --log-file $out_dir/23-deseq2_preprocess_otu.log \
- --out-Rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
- --var EnvType
+ --out-deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
+ --var-exp EnvType
 
 echo "DESeq2 function abundances"
 
@@ -518,9 +502,9 @@ echo "DESeq2 function abundances"
  --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
  --analysis FUNCTION \
  --log-file $out_dir/23-deseq2_preprocess_func.log \
- --out-Rdata $out_dir/23-deseq2_preprocess_func.Rdata \
- --out-Phyloseq $out_dir/23-phyloseq_functions.Rdata \
- --var EnvType
+ --out-deseq-rdata $out_dir/23-deseq2_preprocess_func.Rdata \
+ --out-phyloseq-rdata $out_dir/23-phyloseq_functions.Rdata \
+ --var-exp EnvType
 
 if [ $? -ne 0 ]
 then
@@ -533,21 +517,21 @@ echo "Step deseq2_visualisation `date`"
 
 echo "DESeq2 ASV abundances"
 ../app/deseq2_visualisation.py \
- --abundanceData $out_dir/16-phylo_import.Rdata \
+ --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --analysis ASV \
- --dds $out_dir/23-deseq2_preprocess_otu.Rdata \
+ --deseq-rdata $out_dir/23-deseq2_preprocess_otu.Rdata \
  --log-file $out_dir/24-deseq2_visualisation_otu.log \
  --html $out_dir/24-deseq2_visualisation_otu.nb.html \
- --var EnvType --mod1 BoeufHache --mod2 SaumonFume
+ --var-exp EnvType --mod1 BoeufHache --mod2 SaumonFume
 
 echo "DESeq2 function abundances"
 ../app/deseq2_visualisation.py \
- --abundanceData $out_dir/23-phyloseq_functions.Rdata\
+ --phyloseq-rdata $out_dir/23-phyloseq_functions.Rdata\
  --analysis FUNCTION \
- --dds $out_dir/23-deseq2_preprocess_func.Rdata \
+ --deseq-rdata $out_dir/23-deseq2_preprocess_func.Rdata \
  --log-file $out_dir/24-deseq2_visualisation_func.log \
  --html $out_dir/24-deseq2_visualisation_func.nb.html \
- --var EnvType --mod1 BoeufHache --mod2 SaumonFume
+ --var-exp EnvType --mod1 BoeufHache --mod2 SaumonFume
 
 if [ $? -ne 0 ]
 then
