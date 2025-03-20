@@ -45,11 +45,11 @@ class Rscript(Cmd):
     @see:  http://rmarkdown.rstudio.com/
            https://joey711.github.io/phyloseq/
     """
-    def __init__(self, abundance_data, dds, var, mod1, mod2, padj, html, analysis, err, ipath_over, ipath_under, svg_file_over, svg_file_under ):
+    def __init__(self, phyloseq_rdata, deseq_rdata, varExp, mod1, mod2, padj, html, analysis, err, ipath_over, ipath_under, svg_file_over, svg_file_under ):
         """
-        @param data: [str] The path of ASV or FUNCTION abundance table in Rdata file. 
-        @param dds : [str] The path of rdata file containing the DESeqDataSet.
-        @param var : [str] The experiment variable.
+        @param phyloseq_rdata: [str] The path of ASV or FUNCTION abundance table in Rdata file. 
+        @param deseq_rdata : [str] The path of rdata file containing the DESeqDataSet.
+        @param varExp : [str] The experiment variable.
         @param mod1: [str] one variance of variable that you want to test.
         @param mod2: [str] one other variance of variable that you want to test.
         @param padj: [str] the adjusted p-value.
@@ -69,7 +69,7 @@ class Rscript(Cmd):
         Cmd.__init__( self,
                       'Rscript',
                       'Run deseq2_visualisation.Rmd',
-                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(abundance_data='" + abundance_data + "', analysis='" + analysis + "', dds='" + dds + "', var='" + var+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + ", version='"+ str(__version__) + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
+                       '-e "rmarkdown::render(' + "'" + rmd + "', output_file='" + html + "', params=list(phyloseq_rdata='" + phyloseq_rdata + "', analysis='" + analysis + "', deseq_rdata='" + deseq_rdata + "', varExp='" + varExp+"', mod1='" + mod1 + "', mod2='" + mod2 + "', padj_th=" + str(padj) + ", libdir ='" + LIB_DIR + "'" + ", version='"+ str(__version__) + "'" + opt + "), intermediates_dir='" + os.path.dirname(html) +"')" + '" 2> ' + err ,
                       "-e '(sessionInfo()[[1]][13])[[1]][1]; library(DESeq2); paste(\"DESeq2 version: \",packageVersion(\"DESeq2\"))'")
                       
     def get_version(self):
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program." )   
     
-    parser.add_argument('--var', type=str, required=True, help='variable that you want to test.' )
+    parser.add_argument('--var-exp', type=str, required=True, help='variable that you want to test.' )
     parser.add_argument('--mod1', type=str, default="None", help='one value of the tested variable you want to compare (if more than 2 value in your experiement variable analyzed.) [Default: %(default)s]' )
     parser.add_argument('--mod2', type=str, default="None", help='second value of the tested variable you want to compare.(if more than 2 value in your experiement variable analyzed.) [Default: %(default)s]' )
     parser.add_argument('--padj', type=float, default=0.05, help='the adjusted p-value threshold to defined ASV as differentially abundant. [Default: %(default)s]' )
@@ -100,8 +100,10 @@ if __name__ == "__main__":
 
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--abundanceData', required=True, help="The path to the RData file containing the ASV/FUNCTION abundances table. (result of FROGS Phyloseq Import Data)")
-    group_input.add_argument('--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
+    # group_input.add_argument('--abundanceData', required=True, help="The path to the RData file containing the ASV/FUNCTION abundances table. (result of FROGS Phyloseq Import Data)")
+    group_input.add_argument('--phyloseq-rdata', required=True, help="The path to the RData file containing the ASV/FUNCTION abundances table. (result of FROGS Phyloseq Import Data)")
+    # group_input.add_argument('--dds', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
+    group_input.add_argument('--deseq-rdata', required=True, help="The path to the Rdata file containing the DESeq dds object (result of FROGS DESeq2 Preprocess)")   
     
     # output
     group_output = parser.add_argument_group( 'Outputs' )
@@ -115,8 +117,10 @@ if __name__ == "__main__":
 
     # Process  
     Logger.static_write(args.log_file, "## Application\nSoftware :" + sys.argv[0] + " (version : " + str(__version__) + ")\nCommand : " + " ".join(sys.argv) + "\n\n")
-    abundance_data=os.path.abspath(args.abundanceData)
-    dds=os.path.abspath(args.dds)
+    # abundance_data=os.path.abspath(args.abundanceData)
+    phyloseq_rdata=os.path.abspath(args.phyloseq_rdata)
+    # dds=os.path.abspath(args.dds)
+    deseq_rdata=os.path.abspath(args.deseq_rdata)
     html=os.path.abspath(args.html)
     tmpFiles = TmpFiles(os.path.dirname(html))
 
@@ -126,7 +130,7 @@ if __name__ == "__main__":
         if args.analysis == "ASV":
             if args.ipath_over is not None or args.ipath_under is not None:
                 parser.error("\n\n#ERROR : --ipath-over and --ipath-under only available for FUNCTION analysis. ")
-            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None, None, None ).submit(args.log_file)
+            Rscript(phyloseq_rdata, deseq_rdata, args.var_exp, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, None, None, None, None ).submit(args.log_file)
         elif args.analysis == "FUNCTION":
             svg_ipath_file_over  = os.path.abspath(output_dir + "/" +  "ipath_over.svg")
             svg_ipath_file_under  = os.path.abspath(output_dir + "/" +  "ipath_under.svg")
@@ -137,7 +141,7 @@ if __name__ == "__main__":
                 args.ipath_under = "ipath_under.tsv"
             args.ipath_under = os.path.abspath(output_dir + "/" +  os.path.basename(args.ipath_under))
 
-            Rscript(abundance_data, dds, args.var, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, args.ipath_over, args.ipath_under, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
+            Rscript(phyloseq_rdata, deseq_rdata, args.var_exp, args.mod1, args.mod2, args.padj, html, args.analysis, R_stderr, args.ipath_over, args.ipath_under, svg_ipath_file_over, svg_ipath_file_under).submit(args.log_file)
     
     finally :
         if not args.debug:

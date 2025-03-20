@@ -18,11 +18,11 @@ echo $OUT "DESeq2 asv abundances"
 mkdir -p $OUT
 
 ./deseq2_preprocess.py \
- --data data/data.Rdata \
+ --phyloseq-rdata data/data.Rdata \
  --analysis ASV \
  --log-file $OUT/deseq2_preprocess_ASV.log \
- --out-Rdata $OUT/deseq2_preprocess_ASV.Rdata \
- --var EnvType 
+ --out-deseq-rdata $OUT/deseq2_preprocess_ASV.Rdata \
+ --var-exp EnvType 
 
 
 # DESeq2 preprocess with ASV abundances 
@@ -36,6 +36,6 @@ mkdir -p $OUT
  --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
  --analysis FUNCTION \
  --log-file $OUT/deseq2_preprocess_func.log \
- --out-Rdata $OUT/deseq2_preprocess_func.Rdata \
- --out-Phyloseq $OUT/phyloseq_functions.Rdata \
- --var EnvType 
+ --out-deseq-rdata $OUT/deseq2_preprocess_func.Rdata \
+ --out-phyloseq-rdata $OUT/phyloseq_functions.Rdata \
+ --var-exp EnvType

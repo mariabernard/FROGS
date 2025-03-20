@@ -18,11 +18,11 @@ mkdir -p test/
 	--biomfile data/chaillou.biom \
 	--samplefile data/sample_data.tsv \
 	--treefile data/tree.nwk \
-	--rdata test/phylo_import.Rdata --html test/phylo_import.nb.html --log-file test/phylo_import.log
+	--out-phyloseq-rdata test/phylo_import.Rdata --html test/phylo_import.nb.html --log-file test/phylo_import.log
 
 # on unstandardized biom
 ./phyloseq_import_data.py  \
 	--normalisation \
 	--biomfile data/frogs.biom \
 	--samplefile data/frogs_sample_data.tsv \
-	--rdata test/frogs_import.Rdata --html test/frogs_import.nb.html --log-file test/frogs_import.log
+	--out-phyloseq-rdata test/frogs_import.Rdata --html test/frogs_import.nb.html --log-file test/frogs_import.log

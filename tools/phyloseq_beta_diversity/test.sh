@@ -11,8 +11,8 @@ else
 fi 
 
 ./phyloseq_beta_diversity.py \
-           --rdata data/data.Rdata \
-           --varExp EnvType \
+           --phyloseq-rdata data/data.Rdata \
+           --var-exp EnvType \
            --distance-methods bray,unifrac,euclidean \
            --matrix-outdir test \
            --html test/phylo_beta.nb.html \

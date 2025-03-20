@@ -10,8 +10,8 @@ else
   mkdir test
 fi 
 
-./phyloseq_manova.py --rdata data/data.Rdata \
-                   --varExp "EnvType + FoodType" \
+./phyloseq_manova.py --phyloseq-rdata data/data.Rdata \
+                   --var-exp "EnvType + FoodType" \
                    --distance-matrix data/Unifrac.tsv \
                    --html test/phylo_manova.nb.html \
                    --log-file test/phylo_manova.log

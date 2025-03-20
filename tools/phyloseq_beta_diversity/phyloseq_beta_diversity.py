@@ -82,11 +82,11 @@ if __name__ == "__main__":
     parser.add_argument( '--version', action='version', version=__version__ )
     parser.add_argument( '--debug', default=False, action='store_true', help="Keep temporary files to debug program. [Default: %(default)s]" )   
     
-    parser.add_argument('--varExp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
+    parser.add_argument('--var-exp', type=str, required=True, default=None, help='The experiment variable you want to analyse. [Default: %(default)s]')
     parser.add_argument('--distance-methods', required=True, type=str, default='bray,cc,unifrac,wunifrac', help='Comma separated values beta diversity methods available in Phyloseq (see https://www.bioconductor.org/packages/devel/bioc/manuals/phyloseq/man/phyloseq.pdf). [Default: %(default)s].')
     # Inputs
     group_input = parser.add_argument_group( 'Inputs' )
-    group_input.add_argument('--rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
+    group_input.add_argument('--phyloseq-rdata', required=True, default=None, help="The path of RData file containing a phyloseq object-the result of FROGS Phyloseq Import Data. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )    
     group_output.add_argument('--matrix-outdir', required=True, action="store", type=str, help="Path to output matrix file")       
@@ -108,12 +108,12 @@ if __name__ == "__main__":
     outdir = os.path.abspath(args.matrix_outdir)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    phyloseq=os.path.abspath(args.rdata)
+    phyloseq=os.path.abspath(args.phyloseq_rdata)
     html=os.path.abspath(args.html)
     try:
         tmpFiles = TmpFiles(os.path.dirname(html))
         rmd_stderr = tmpFiles.add("rmarkdown.stderr")
-        Rscript(html, phyloseq, args.varExp, methods, outdir, rmd_stderr).submit( args.log_file )
+        Rscript(html, phyloseq, args.var_exp, methods, outdir, rmd_stderr).submit( args.log_file )
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

@@ -11,8 +11,8 @@ else
 fi 
 
 ./phyloseq_clustering.py \
-    --rdata data/data.Rdata \
-    --varExp EnvType \
+    --phyloseq-rdata data/data.Rdata \
+    --var-exp EnvType \
     --distance-matrix data/Unifrac.tsv \
     --html test/phylo_clustering.nb.html \
     --log-file test/phylo_clustering.log

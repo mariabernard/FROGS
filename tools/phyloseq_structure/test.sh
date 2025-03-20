@@ -11,8 +11,8 @@ else
 fi 
 
 ./phyloseq_structure.py \
-     --rdata data/data.Rdata \
-     --varExp EnvType \
+     --phyloseq-rdata data/data.Rdata \
+     --var-exp EnvType \
      --ordination-method MDS \
      --distance-matrix data/Unifrac.tsv \
      --html test/phylo_structure.nb.html \

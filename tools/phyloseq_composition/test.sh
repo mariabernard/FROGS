@@ -9,6 +9,6 @@ then
 else
 	mkdir test
 fi 
- ./phyloseq_composition.py --rdata data/data.Rdata \
-	--varExp EnvType --taxaRank1 Kingdom --taxaSet1 Bacteria --taxaRank2 Phylum --numberOfTaxa 9 \
+ ./phyloseq_composition.py --phyloseq-rdata data/data.Rdata \
+	--var-exp EnvType --taxa-rank-1 Kingdom --taxa-set-1 Bacteria --taxa-rank-2 Phylum --number-of-taxa 9 \
 	--log-file test/phylo_compo.log --html test/phylo_compo.nb.html
