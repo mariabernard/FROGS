@@ -32,7 +32,7 @@ echo $OUT "DESeq2 function abundances"
 mkdir -p $OUT
 
 ./deseq2_preprocess.py \
- --samplefile data/chaillou.sample \
+ --sample-metadata-tsv data/chaillou.sample \
  --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
  --analysis FUNCTION \
  --log-file $OUT/deseq2_preprocess_func.log \

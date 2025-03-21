@@ -91,7 +91,7 @@ class Tsv2biom(Cmd):
 
 class PhyloseqImport(Cmd):
     """
-    @summary: import asv_phyloseq_rdata from two files: biomfile and samplefile into a phyloseq object for FUNCTION analysis.
+    @summary: construct phyloseq_rdata from two files: --input-biom and sample-metadata-tsv into a phyloseq object for FUNCTION analysis.
     """
     def __init__(self, biom_file, sample_file, ranks, out_deseq_rdata, out_html, log):
         """
@@ -104,7 +104,7 @@ class PhyloseqImport(Cmd):
         Cmd.__init__(self,
                  'phyloseq_import_data.py',
                  'create phyloseq object like with function abundances and annotation', 
-                 ' --biomfile ' + biom_file + ' --samplefile ' + sample_file + ' --ranks ' + ranks + ' --out-phyloseq-rdata ' + out_deseq_rdata + ' --html ' + out_html + '  2>> ' + log,
+                 ' --input-biom ' + biom_file + ' --sample-metadata-tsv ' + sample_file + ' --ranks ' + ranks + ' --out-phyloseq-rdata ' + out_deseq_rdata + ' --html ' + out_html + '  2>> ' + log,
                 "--version")
 
     def get_version(self):
@@ -149,11 +149,11 @@ if __name__ == "__main__":
 
     group_input_function_table = parser.add_argument_group( ' FUNCTION ' )
     group_input_function_table.add_argument('--input-functions', default=None, help='Input file of metagenome function prediction abundances (frogsfunc_functions_unstrat.tsv from FROGSFUNC function step). Required. [Default: %(default)s].')
-    group_input_function_table.add_argument('--samplefile', default=None, help='path to sample file (format: TSV). Required.' )
-    group_input_function_table.add_argument('--out-phyloseq-rdata', default='function_data.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
+    group_input_function_table.add_argument('--sample-metadata-tsv', default=None, help='path to sample file (format: TSV). Required.' )
+    group_input_function_table.add_argument('--out-phyloseq-rdata', default='function_phyloseq.Rdata', help="path to store phyloseq-class object in Rdata file. [Default: %(default)s]" )
     # output
     group_output = parser.add_argument_group( 'Outputs' )
-    group_output.add_argument('--out-deseq-rdata', default=None, help="The path to store resulting dataframe of DESeq2. [Default: %(default)s]" )
+    group_output.add_argument('--out-deseq-rdata', default=None, help="The path to store resulting dataframe of DESeq2." )
     group_output.add_argument('--log-file', default=sys.stdout, help='This output file will contain several information on executed commands. [Default: stdout]')
     args = parser.parse_args()
     prevent_shell_injections(args)
@@ -169,15 +169,15 @@ if __name__ == "__main__":
 
     # Check for FUNCTION input
     if args.analysis == "FUNCTION":
-        if args.input_functions is None or args.samplefile is None:
-            parser.error("\n\n#ERROR : --input-functions and --samplefile both required for FROGSFUNC analysis.\n\n")
+        if args.input_functions is None or args.sample_metadata_tsv is None:
+            parser.error("\n\n#ERROR : --input-functions and --sample-metadata-tsv both required for FROGSFUNC analysis.\n\n")
 
     # Adapt default output file name
     if args.out_deseq_rdata is None:
         if args.analysis == "ASV":
-            args.out_deseq_rdata = "asv_dds.Rdata"
+            args.out_deseq_rdata = "asv_deseq2_dds.Rdata"
         elif args.analysis == "FUNCTION":
-            args.out_deseq_rdata = "function_dds.Rdata"
+            args.out_deseq_rdata = "function_deseq2_dds.Rdata"
 
     out_deseq_rdata=os.path.abspath(args.out_deseq_rdata)
     tmpFiles = TmpFiles(os.path.dirname(out_deseq_rdata))
@@ -196,7 +196,7 @@ if __name__ == "__main__":
         #       - this is the default behavior of phyloseq (and check in phyloseq_import)
         
         sample_metadata_list = set()
-        FH_in = open(args.samplefile)
+        FH_in = open(args.sample_metadata_tsv)
         FH_in.readline()
         for line in FH_in:
             sample_metadata_list.add(line.split()[0]) 
@@ -213,11 +213,11 @@ if __name__ == "__main__":
         ranks = " ".join(['Level_4', 'Level_3', 'Level_2', 'Level_1'])
         phyloseq_log = tmpFiles.add( "phyloseq_import.log")
         phyloseq_html = tmpFiles.add( "phyloseq_import.nb.html")
-        PhyloseqImport(tmp_function_abundances_biom, args.samplefile, ranks, args.out_phyloseq_rdata, phyloseq_html, phyloseq_log).submit( args.log_file)
+        PhyloseqImport(tmp_function_abundances_biom, args.sample_metadata_tsv, ranks, args.out_phyloseq_rdata, phyloseq_html, phyloseq_log).submit( args.log_file)
 
     try:
         R_stderr = tmpFiles.add("R.stderr")
-        Rscript(args.analysis, asv_phyloseq_rdata, args.var_exp, args.input_functions, args.samplefile, out_deseq_rdata, R_stderr).submit(args.log_file)
+        Rscript(args.analysis, asv_phyloseq_rdata, args.var_exp, args.input_functions, args.sample_metadata_tsv, out_deseq_rdata, R_stderr).submit(args.log_file)
     finally :
         if not args.debug:
             tmpFiles.deleteAll()

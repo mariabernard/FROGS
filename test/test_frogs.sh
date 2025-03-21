@@ -379,9 +379,9 @@ fi
 echo "Step phyloseq_import_data `date`"
 
 phyloseq_import_data.py  \
- --biomfile data/chaillou.biom \
- --samplefile data/sample_metadata.tsv \
- --treefile data/tree.nwk \
+ --input-biom data/chaillou.biom \
+ --sample-metadata-tsv data/sample_metadata.tsv \
+ --tree-nwk data/tree.nwk \
  --out-phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --html $out_dir/16-phylo_import.nb.html \
  --log-file $out_dir/16-phylo_import.log
@@ -427,7 +427,7 @@ fi
 echo "Step phyloseq_beta_diversity `date`"
 
 phyloseq_beta_diversity.py  \
- --var-exp EnvType --distance-methods cc,unifrac \
+ --var-exp EnvType --beta-distance-methods cc,unifrac \
  --phyloseq-rdata $out_dir/16-phylo_import.Rdata \
  --matrix-outdir $out_dir \
  --html $out_dir/19-phylo_beta_div.nb.html \
@@ -498,7 +498,7 @@ echo "DESeq2 asv abundances"
 echo "DESeq2 function abundances"
 
 ../app/deseq2_preprocess.py \
- --samplefile data/sample_metadata.tsv \
+ --sample-metadata-tsv data/sample_metadata.tsv \
  --input-functions data/frogsfunc_functions_unstrat_EC.tsv \
  --analysis FUNCTION \
  --log-file $out_dir/23-deseq2_preprocess_func.log \
